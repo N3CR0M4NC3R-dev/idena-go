@@ -1417,10 +1417,6 @@ func (chain *Blockchain) processTxs(txs []*types.Transaction, context *txsExecut
 
 func (chain *Blockchain) tryExecuteTx(tx *types.Transaction, context *txExecutionContext) error {
 
-	if chain.config.Consensus.EnableUpgrade12 {
-		return nil
-	}
-
 	sender, _ := types.Sender(tx)
 	switch tx.Type {
 	case types.DeployContractTx, types.CallContractTx, types.TerminateContractTx:
@@ -2174,7 +2170,7 @@ func (chain *Blockchain) filterTxs(appState *appstate.AppState, txs []*types.Tra
 		}
 		context := &txExecutionContext{appState: appState, vm: vm, height: header.Height}
 
-		if err := chain.tryExecuteTx(tx, context); err != nil && strings.Contains(err.Error(), SkipError) {
+		if err := chain.tryExecuteTx(tx, context); err != nil {
 			chain.repo.AddToBlackList(tx.Hash())
 			chain.repo.FinishApplyingTx(tx.Hash())
 			continue
